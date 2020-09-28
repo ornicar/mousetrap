@@ -161,23 +161,6 @@
     }
 
     /**
-     * cross browser add event method
-     *
-     * @param {Element|HTMLDocument} object
-     * @param {string} type
-     * @param {Function} callback
-     * @returns void
-     */
-    function _addEvent(object, type, callback) {
-        if (object.addEventListener) {
-            object.addEventListener(type, callback, false);
-            return;
-        }
-
-        object.attachEvent('on' + type, callback);
-    }
-
-    /**
      * takes the event and returns the key character
      *
      * @param {Event} e
@@ -242,53 +225,15 @@
     function _eventModifiers(e) {
         var modifiers = [];
 
-        if (e.shiftKey) {
-            modifiers.push('shift');
-        }
-
-        if (e.altKey) {
-            modifiers.push('alt');
-        }
-
-        if (e.ctrlKey) {
-            modifiers.push('ctrl');
-        }
-
-        if (e.metaKey) {
-            modifiers.push('meta');
-        }
+        if (e.shiftKey) modifiers.push('shift');
+        
+        if (e.altKey) modifiers.push('alt');
+        
+        if (e.ctrlKey) modifiers.push('ctrl');
+        
+        if (e.metaKey) modifiers.push('meta');
 
         return modifiers;
-    }
-
-    /**
-     * prevents default for this event
-     *
-     * @param {Event} e
-     * @returns void
-     */
-    function _preventDefault(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-            return;
-        }
-
-        e.returnValue = false;
-    }
-
-    /**
-     * stops propogation for this event
-     *
-     * @param {Event} e
-     * @returns void
-     */
-    function _stopPropagation(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-            return;
-        }
-
-        e.cancelBubble = true;
     }
 
     /**
@@ -409,22 +354,10 @@
         action = _pickBestAction(key, modifiers, action);
 
         return {
-            key: key,
-            modifiers: modifiers,
-            action: action
+            key,
+            modifiers,
+            action
         };
-    }
-
-    function _belongsTo(element, ancestor) {
-        if (element === null || element === document) {
-            return false;
-        }
-
-        if (element === ancestor) {
-            return true;
-        }
-
-        return _belongsTo(element.parentNode, ancestor);
     }
 
     function Mousetrap(targetElement) {
@@ -609,8 +542,8 @@
             }
 
             if (callback(e, combo) === false) {
-                _preventDefault(e);
-                _stopPropagation(e);
+              e.preventDefault();
+              e.stopPropagation();
             }
         }
 
@@ -881,9 +814,9 @@
         };
 
         // start!
-        _addEvent(targetElement, 'keypress', _handleKeyEvent);
-        _addEvent(targetElement, 'keydown', _handleKeyEvent);
-        _addEvent(targetElement, 'keyup', _handleKeyEvent);
+        targetElement.addEventListener('keypress', _handleKeyEvent);
+        targetElement.addEventListener('keydown', _handleKeyEvent);
+        targetElement.addEventListener('keyup', _handleKeyEvent);
     }
 
     /**
@@ -973,9 +906,7 @@
             return false;
         }
 
-        if (_belongsTo(element, self.target)) {
-            return false;
-        }
+        if (self.target.contains(element)) return false;
 
         // stop for input, select, and textarea
         return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || element.isContentEditable;
