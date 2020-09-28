@@ -480,8 +480,7 @@
         /**
          * actually calls the callback function
          *
-         * if your callback function returns false this will use the jquery
-         * convention - prevent default and stop propogation on the event
+         * always prevent default and stop propogation on the event
          *
          * @param {Function} callback
          * @param {Event} e
@@ -492,10 +491,9 @@
             const el = e.target;
             if (combo != 'esc' && (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA')) return;
 
-            if (callback(e, combo) === false) {
-              e.preventDefault();
-              e.stopPropagation();
-            }
+            callback();
+            e.preventDefault();
+            e.stopPropagation();
         }
 
         /**
@@ -613,7 +611,7 @@
                 return;
             }
 
-            self.handleKey(character, _eventModifiers(e), e);
+            self._handleKey.call(self, character, _eventModifiers(e), e);
         }
 
         /**
@@ -756,9 +754,7 @@
          * @returns void
          */
         self._bindMultiple = function(combinations, callback, action) {
-            for (var i = 0; i < combinations.length; ++i) {
-                _bindSingle(combinations[i], callback, action);
-            }
+          combinations.forEach(c => _bindSingle(c, callback, action));
         };
 
         // start!
@@ -782,54 +778,10 @@
      * @returns void
      */
     Mousetrap.prototype.bind = function(keys, callback, action) {
-        var self = this;
-        keys = keys instanceof Array ? keys : [keys];
-        self._bindMultiple.call(self, keys, callback, action);
-        return self;
+        this._bindMultiple.call(this, keys instanceof Array ? keys : [keys], callback, action);
+        return this;
     };
-
-    /**
-     * unbinds an event to mousetrap
-     *
-     * the unbinding sets the callback function of the specified key combo
-     * to an empty function.
-     *
-     * TODO: actually remove this from the _callbacks dictionary instead
-     * of binding an empty function
-     *
-     * the keycombo+action has to be exactly the same as
-     * it was defined in the bind method
-     *
-     * @param {string|Array} keys
-     * @param {string} action
-     * @returns void
-     */
-    Mousetrap.prototype.unbind = function(keys, action) {
-        var self = this;
-        return self.bind.call(self, keys, function() {}, action);
-    };
-
-    /**
-     * Init the global mousetrap functions
-     *
-     * This method is needed to allow the global mousetrap functions to work
-     * now that mousetrap is a constructor function.
-     */
-    Mousetrap.init = function() {
-        var documentMousetrap = Mousetrap(document);
-        for (var method in documentMousetrap) {
-            if (method.charAt(0) !== '_') {
-                Mousetrap[method] = (function(method) {
-                    return function() {
-                        return documentMousetrap[method].apply(documentMousetrap, arguments);
-                    };
-                } (method));
-            }
-        }
-    };
-
-    Mousetrap.init();
 
     // expose mousetrap to the global object
-    window.Mousetrap = Mousetrap;
+    window.Mousetrap = new Mousetrap();
 })();
