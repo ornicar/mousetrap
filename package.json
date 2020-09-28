@@ -7,6 +7,7 @@
     "test": "tests"
   },
   "scripts": {
+    "build": "terser mousetrap.js -c -m --safari10 -o mousetrap.min.js",
     "test": "mocha --reporter=nyan tests/test.mousetrap.js"
   },
   "repository": {
@@ -23,6 +24,7 @@
   "gitHead": "c202a0bd4967d5a3064f9cb376db51dec9345336",
   "readmeFilename": "README.md",
   "devDependencies": {
+    "terser": "^5.3.2",
     "chai": "^4.2.0",
     "grunt": "~1.0.3",
     "grunt-complexity": "~1.1.0",
