@@ -384,13 +384,6 @@
         self._callbacks = {};
 
         /**
-         * direct map of string combinations to callbacks used for trigger()
-         *
-         * @type {Object}
-         */
-        self._directMap = {};
-
-        /**
          * keeps track of what level each sequence is at since multiple
          * sequences can start out with the same sequence
          *
@@ -758,9 +751,6 @@
          */
         function _bindSingle(combination, callback, action, sequenceName, level) {
 
-            // store a direct mapped reference for use with Mousetrap.trigger
-            self._directMap[combination + ':' + action] = callback;
-
             // make sure multiple spaces in a row become a single space
             combination = combination.replace(/\s+/g, ' ');
 
@@ -844,8 +834,7 @@
      * unbinds an event to mousetrap
      *
      * the unbinding sets the callback function of the specified key combo
-     * to an empty function and deletes the corresponding key in the
-     * _directMap dict.
+     * to an empty function.
      *
      * TODO: actually remove this from the _callbacks dictionary instead
      * of binding an empty function
@@ -863,21 +852,6 @@
     };
 
     /**
-     * triggers an event that has already been bound
-     *
-     * @param {string} keys
-     * @param {string=} action
-     * @returns void
-     */
-    Mousetrap.prototype.trigger = function(keys, action) {
-        var self = this;
-        if (self._directMap[keys + ':' + action]) {
-            self._directMap[keys + ':' + action]({}, keys);
-        }
-        return self;
-    };
-
-    /**
      * resets the library back to its initial state.  this is useful
      * if you want to clear out the current keyboard shortcuts and bind
      * new ones - for example if you switch to another page
@@ -887,7 +861,6 @@
     Mousetrap.prototype.reset = function() {
         var self = this;
         self._callbacks = {};
-        self._directMap = {};
         return self;
     };
 
