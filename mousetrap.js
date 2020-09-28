@@ -527,12 +527,10 @@
          * @param {Event} e
          * @returns void
          */
-        function _fireCallback(callback, e, combo, sequence) {
+        function _fireCallback(callback, e, combo) {
 
-            // if this event should not happen stop here
-            if (self.stopCallback(e, e.target || e.srcElement, combo, sequence)) {
-                return;
-            }
+            const el = e.target;
+            if (combo != 'esc' && (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA')) return;
 
             if (callback(e, combo) === false) {
               e.preventDefault();
@@ -588,7 +586,7 @@
 
                     // keep a list of which sequences were matches for later
                     doNotReset[callbacks[i].seq] = 1;
-                    _fireCallback(callbacks[i].callback, e, callbacks[i].combo, callbacks[i].seq);
+                    _fireCallback(callbacks[i].callback, e, callbacks[i].combo);
                     continue;
                 }
 
@@ -852,48 +850,6 @@
     };
 
     /**
-     * resets the library back to its initial state.  this is useful
-     * if you want to clear out the current keyboard shortcuts and bind
-     * new ones - for example if you switch to another page
-     *
-     * @returns void
-     */
-    Mousetrap.prototype.reset = function() {
-        var self = this;
-        self._callbacks = {};
-        return self;
-    };
-
-    /**
-     * should we stop this event before firing off callbacks
-     *
-     * @param {Event} e
-     * @param {Element} element
-     * @return {boolean}
-     */
-    Mousetrap.prototype.stopCallback = function(e, element) {
-        var self = this;
-
-        // if the element has the class "mousetrap" then no need to stop
-        if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
-            return false;
-        }
-
-        if (self.target.contains(element)) return false;
-
-        // stop for input, select, and textarea
-        return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || element.isContentEditable;
-    };
-
-    /**
-     * exposes _handleKey publicly so it can be overwritten by extensions
-     */
-    Mousetrap.prototype.handleKey = function() {
-        var self = this;
-        return self._handleKey.apply(self, arguments);
-    };
-
-    /**
      * Init the global mousetrap functions
      *
      * This method is needed to allow the global mousetrap functions to work
@@ -916,16 +872,4 @@
 
     // expose mousetrap to the global object
     window.Mousetrap = Mousetrap;
-
-    // expose as a common js module
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = Mousetrap;
-    }
-
-    // expose mousetrap as an AMD module
-    if (typeof define === 'function' && define.amd) {
-        define(function() {
-            return Mousetrap;
-        });
-    }
 })();
