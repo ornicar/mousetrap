@@ -489,7 +489,7 @@
         function _fireCallback(callback, e, combo) {
 
             const el = e.target;
-            if (combo != 'esc' && (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA' || element.isContentEditable)) return;
+            if (combo != 'esc' && (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA' || el.isContentEditable)) return;
 
             callback();
             e.preventDefault();
